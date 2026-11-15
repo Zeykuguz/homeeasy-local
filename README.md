@@ -51,6 +51,45 @@ cd homeeasy-local
   - Right-click the icon for Power ON/OFF and **Exit**.
 - Settings: `%AppData%\HomeEasyLocal\settings.json`.
 
+## iPhone app (local only, no App Store)
+Source: `ios/` (SwiftUI, iOS 15+). GitHub Actions (`.github/workflows/ios.yml`) builds an **unsigned** IPA on a Mac runner.
+It is attached to the release [`ios-v1.0.0`](https://github.com/Zeykuguz/homeeasy-local/releases/tag/ios-v1.0.0)
+as `HomeEasyLocal.ipa`. You sign and install it from this Windows PC with **your own free Apple ID**, using **Sideloadly**.
+
+### One-time preparation (Windows PC)
+1. Install **iTunes** and **iCloud** from apple.com, the "Windows without Microsoft Store" download links.
+   The Microsoft Store versions do not work with Sideloadly.
+2. Install **Sideloadly** from https://sideloadly.io.
+3. Download `HomeEasyLocal.ipa` from the release (or `gh release download ios-v1.0.0 -R Zeykuguz/homeeasy-local`).
+
+### Install
+1. Connect the iPhone by USB cable, unlock it and tap **Trust this computer**.
+2. Open Sideloadly:
+   - drag `HomeEasyLocal.ipa` into it;
+   - choose your iPhone;
+   - type your **Apple ID** e-mail;
+   - click **Start**.
+3. Enter the Apple ID password and the 2FA code when asked.
+   Sideloadly sends them only to Apple. You can use a secondary Apple ID if you prefer.
+4. On the iPhone, trust the developer profile: **Settings → General → VPN & Device Management** →
+   your Apple ID → **Trust**.
+5. iOS 16 or newer: turn on **Settings → Privacy & Security → Developer Mode**. The iPhone restarts; confirm **Turn On**.
+6. Open **AC Control** and tap **Allow** when asked for *Local Network* access. Without it the app cannot reach the AC.
+   You can change it later in **Settings → Privacy & Security → Local Network**.
+7. Enter the AC IP (default `192.168.0.5`) and tap **Connect**, or tap **Scan network**.
+   The iPhone must be on the home Wi-Fi (KODI or KODI 5G).
+
+### Limits of a free Apple ID
+- The app stops opening after **7 days**. Re-sign it: connect the iPhone and run Sideloadly again with the same IPA;
+  your settings are kept. You can also enable Sideloadly's *Automatic refresh* (iPhone and PC on the same Wi-Fi).
+- A free Apple ID can have at most 3 sideloaded apps.
+- With a paid Apple Developer account ($99/year) the signature lasts 1 year.
+
+### Rebuild after changes
+Push changes under `ios/`, or run the workflow by hand: `gh workflow run ios.yml`.
+Then download the artifact with `gh run download <run-id>`.
+The protocol package can also be tested on a Mac with `cd ios/HomeEasyKit && swift test`.
+
 ## Development
 ```powershell
 dotnet run --project src\HomeEasy.Desktop   # run from source

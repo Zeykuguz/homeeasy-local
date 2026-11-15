@@ -149,10 +149,12 @@ The protocol library and tests can be written now (spec known) in parallel with 
 - Optional `HomeEasy.Cli` (`he power on`, `he temp 22`) for scripts / Task Scheduler.
 - No cloud code at all.
 
-### Step 7 – iOS (optional, later)
-- .NET MAUI reusing `HomeEasy.Protocol`, or Swift + Network.framework; needs Mac/Xcode;
-  `NSLocalNetworkUsageDescription`; manual IP (broadcast needs multicast entitlement).
-- Same local-only rule: phone must be on home Wi-Fi.
+### Step 7 – iOS — DONE
+- SwiftUI app in `ios/` (HomeEasyKit Swift package + App, XcodeGen `project.yml`).
+- Built as an unsigned IPA by GitHub Actions on macos-latest; release `ios-v1.0.0`.
+- Installed via Sideloadly with a free Apple ID; re-sign every 7 days.
+- Manual IP or a TCP /24 scan (UDP broadcast would need the multicast entitlement); `NSLocalNetworkUsageDescription`.
+- Local only: the phone must be on the home Wi-Fi.
 
 ## 5. Notes
 - Legal: personal interoperability RE is OK in EU (Directive 2009/24/EC art. 6). If we copy homeeasylib code,
