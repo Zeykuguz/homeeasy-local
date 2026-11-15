@@ -5,3 +5,11 @@ publish/
 *.user
 __pycache__/
 tools/probe_ap_*.log
+
+# iOS (generated)
+ios/*.xcodeproj/
+ios/App/Info.plist
+ios/build/
+ios/Payload/
+ios/*.ipa
+ios/HomeEasyKit/.build/

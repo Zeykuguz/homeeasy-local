@@ -1,0 +1,33 @@
+name: HomeEasy
+options:
+  bundleIdPrefix: com.zeykuguz
+  deploymentTarget:
+    iOS: "15.0"
+packages:
+  HomeEasyKit:
+    path: HomeEasyKit
+targets:
+  HomeEasy:
+    type: application
+    platform: iOS
+    sources:
+      - App
+    dependencies:
+      - package: HomeEasyKit
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: AC Control
+        CFBundleShortVersionString: "1.0.0"
+        CFBundleVersion: "1"
+        NSLocalNetworkUsageDescription: AC Control talks directly to your air conditioner on the home Wi-Fi.
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.zeykuguz.homeeasylocal
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        GENERATE_INFOPLIST_FILE: NO
