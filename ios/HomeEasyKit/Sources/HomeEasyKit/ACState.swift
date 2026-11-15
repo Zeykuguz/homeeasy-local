@@ -149,11 +149,12 @@ public struct ACState: Equatable {
 
 public extension Array where Element == UInt8 {
     init?(hex: String) {
-        let chars = Array(hex)
+        let chars: [Character] = Array(hex)
         guard chars.count % 2 == 0 else { return nil }
         var out: [UInt8] = []
         for i in stride(from: 0, to: chars.count, by: 2) {
-            guard let b = UInt8(String(chars[i...i + 1]), radix: 16) else { return nil }
+            let pair = String([chars[i], chars[i + 1]])
+            guard let b = UInt8(pair, radix: 16) else { return nil }
             out.append(b)
         }
         self = out
