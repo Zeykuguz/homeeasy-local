@@ -116,7 +116,7 @@ public partial class MainWindow : Window
             HostBox.ItemsSource = devices.Select(d => d.Address.ToString()).ToList();
             if (devices.Count == 0)
             {
-                SetStatus("No AC found. PC and AC must be on the same network (KODI). Set the Windows network to 'Private', or type the IP.", error: true);
+                SetStatus("No AC found. PC and AC must be on the same network (). Set the Windows network to 'Private', or type the IP.", error: true);
                 return;
             }
             SetStatus($"Found: {string.Join(", ", devices.Select(d => $"{d.Address} (MAC {d.Mac})"))}");

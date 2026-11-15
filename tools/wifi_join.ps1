@@ -1,6 +1,6 @@
 # Connect the Wi-Fi adapter to the AC hotspot (SMART_xxxx / 88888888) or back to home Wi-Fi.
 #   .\wifi_join.ps1            -> lists SMART_* networks and joins the first one
-#   .\wifi_join.ps1 -Ssid KODI -> reconnect to home Wi-Fi (existing profile)
+#   .\wifi_join.ps1 -Ssid  -> reconnect to home Wi-Fi (existing profile)
 param([string]$Ssid, [string]$Key = '88888888', [string]$Interface = 'Wi-Fi')
 
 if ($Ssid -and (netsh wlan show profiles) -match [regex]::Escape($Ssid) -and $Ssid -notlike 'SMART_*') {

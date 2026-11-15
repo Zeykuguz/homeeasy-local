@@ -4,35 +4,35 @@
 A Windows 11 desktop app that talks **directly to the AC over the home LAN** – no vendor cloud,
 no remote server, no internet dependency. (iOS later, optional.)
 
-Current state: AC powered on, **not yet joined to Wi-Fi**. Home Wi-Fi: `KODI` and `KODI 5G`.
+Current state: AC powered on, **not yet joined to Wi-Fi**.
 
 ### Status update (2026-11-15)
-- **DONE: the AC was already joined to KODI** (the earlier o3). Discovered at **192.168.0.5**, MAC `08:bc:20:00:02:a0`, type 01/02/02.
+- **DONE: the AC was already joined to ** (the earlier o3). Discovered at **192.168.0.5**, MAC `08:bc:20:00:02:a0`, type 01/02/02.
 - **Local protocol verified**: status read + setpoint write (21→22→21 °C) over TCP 12416. No cloud used.
 - Windows "Public" profile did NOT block discovery – no firewall/admin change needed.
 - .NET 8 SDK installed; solution `HomeEasy.sln` builds; 11 tests pass; WPF app `HomeEasyLocal.exe` auto-discovers and connects.
 - Remaining (optional): DHCP reservation for 192.168.0.5, block 91.196.132.126, iOS app.
 - DONE (21:40): off-timer (AC built-in countdown, verified), single-instance + tray fixes, self-contained publish, private GitHub repo Zeykuguz/homeeasy-local with release exe.
 - Previous notes below are kept for reference.
-- PC verified: Wi-Fi on **KODI, 2.4 GHz, ch 2, WPA2-Personal**, IP 192.168.0.69; Ethernet also on 192.168.0.68 (same LAN, GW 192.168.0.1).
+- PC verified: Wi-Fi on ** 2.4 GHz, ch 2, WPA2-Personal**, IP 192.168.0.69; Ethernet also on 192.168.0.68 (same LAN, GW 192.168.0.1).
 - Both Windows network profiles are **Public** → must switch to **Private** (blocks broadcast replies otherwise).
 - Python 3.13 installed; **.NET SDK NOT installed** → install .NET 8 SDK (`winget install Microsoft.DotNet.SDK.8`).
 - **Option A (official app pairing) does NOT work** → Option B (PC-based pairing) is now the primary path.
 - Wi-Fi password is provided by the user at runtime only (prompt / env var `HE_WIFI_PASS`); never written to files in the repo.
 
 ## 2. Answer: which Wi-Fi network?
-- **AC → must join `KODI`** (2.4 GHz). The AC Wi-Fi module is 2.4 GHz only; it cannot see/join `KODI 5G`.
-- **PC → join `KODI` as well (recommended)**. Strictly, PC and AC only need to be on the **same LAN/subnet**
-  (same router, same IP range e.g. 192.168.1.x). On most routers KODI and KODI 5G are bridged, so it would
+- **AC → must join** (2.4 GHz). The AC Wi-Fi module is 2.4 GHz only; 
+- **PC → join  as well (recommended)**. Strictly, PC and AC only need to be on the **same LAN/subnet**
+  (same router, same IP range e.g. 192.168.1.x).
   work either way, BUT:
   - device discovery uses a **UDP broadcast**; some routers don't forward broadcast between bands or
     have "AP/client isolation" on one band → discovery silently fails (this may be exactly why the phone app
     can't see the AC!).
-  - Using `KODI` for both removes that variable during testing. Once working, you can try the PC on 5G.
+  - Using  for both removes that variable during testing. Once working, you can try the PC on 5G.
 - The PC may also be on **Ethernet** to the same router – also fine (same subnet).
 - Router settings to check: **AP/client isolation OFF**, **guest network NOT used** for either device,
   2.4 GHz security **WPA2-PSK (AES)** (not WPA3-only), avoid special chars in SSID/password if pairing fails.
-  Note: SSID `KODI 5G` contains a space – irrelevant for AC since AC uses `KODI`.
+  Note: SSID  contains a space – irrelevant for AC since AC uses.
 
 ## 3. Protocol knowledge (from public project ki0ki0/homeeasylib, GPLv3 – verified on CH-S09FTXN-PW, same FTXN family)
 | Item | Value |
@@ -66,17 +66,17 @@ State bit map (payload byte N = frame byte N+4, bit 0 = MSB):
 ## 4. Step-by-step guide (I will guide you interactively at each step)
 
 ### Step 1 – Prepare the router (you)
-1. Log into router admin. Confirm `KODI` = 2.4 GHz, `KODI 5G` = 5 GHz, same LAN (same IP range).
-2. Disable AP/client isolation on `KODI`.
+1. Log into router admin. Confirm `` = 2.4 GHz, ` 5G` = 5 GHz, same LAN (same IP range).
+2. Disable AP/client isolation on ``.
 3. Note the LAN range (e.g. 192.168.1.0/24).
 
 ### Step 2 – Prepare the PC (me + you)
-1. Connect PC to `KODI` (or Ethernet on same router). I verify with `ipconfig` / `netsh wlan show interfaces`.
+1. Connect PC to `` (or Ethernet on same router). I verify with `ipconfig` / `netsh wlan show interfaces`.
 2. Set network profile to **Private** (Windows blocks discovery on "Public").
 3. Add Windows Firewall rule: allow inbound **UDP 2415** (discovery replies) and outbound TCP 12416.
 4. Install: Python 3.11+, Wireshark + Npcap, nmap (optional), .NET 8 SDK.
 
-### Step 3 – Connect the AC to `KODI` (pairing)
+### Step 3 – Connect the AC to `` (pairing)
 The AC needs your SSID/password once. Two options:
 
 **Option A (recommended first) – use the official HomeEasy app only for pairing, in LOCAL mode**
@@ -84,8 +84,8 @@ The AC needs your SSID/password once. Two options:
    → app runs in local mode (avoids cloud).
 2. AC remote: press **WiFi** (indicator flashes slowly), then hold **WiFi 3 s** → 2 beeps, display **o2**, fast flash.
 3. Phone: join hotspot `SMART_xxxx`, password `88888888`.
-4. App → `+` → select `KODI`, enter password, choose **LOCAL** → Setting.
-5. AC beeps 3×, display **o3** = joined KODI. Phone back to KODI.
+4. App → `+` → select ``, enter password, choose **LOCAL** → Setting.
+5. AC beeps 3×, display **o3** = joined . Phone back to .
    (Even if the app then doesn't list it – that's fine, our PC app will find it.)
 
 **Option A – FAILED (user tested).**
@@ -109,8 +109,8 @@ so the PC stays online and Copilot keeps working while the Wi-Fi adapter joins t
    - c. HomeEasy binary frame. If needed, I'll find the exact frame by decompiling the APK
      (`cn.adentech.iot.he`, plus the older `net.conditioner.web`) with JADX and searching for
      `SMART_`, `88888888`, `ssid`, `12414`, `0xAA`, `DatagramSocket` and `Socket(`.
-   Then send SSID `KODI` and the password (password is entered at runtime).
-6. User: confirm AC beeps 3× / shows **o3**. Me: reconnect Wi-Fi to KODI, then go on to Step 4.
+   Then send SSID `` and the password (password is entered at runtime).
+6. User: confirm AC beeps 3× / shows **o3**. Me: reconnect Wi-Fi to , then go on to Step 4.
 7. Fallback if every channel fails: capture a real phone pairing attempt. Turn on Windows Mobile Hotspot,
    connect the phone to it, capture with Wireshark, and run the official app's pairing while the phone is
    also seen joining SMART_xxxx (or use PCAPdroid on Android).
