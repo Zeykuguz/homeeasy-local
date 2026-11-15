@@ -6,7 +6,7 @@ from Windows. The PC talks directly to the AC over your home network.
 ## Your setup (verified 2026-11-15)
 | | |
 |---|---|
-| Network | `KODI` (2.4 GHz). PC and AC must be on the same home network (same router). |
+| Network | (2.4 GHz). PC and AC must be on the same home network (same router). |
 | AC IP / MAC | `192.168.0.5` / `08:bc:20:00:02:a0`. Give it a DHCP reservation in the router. |
 | Protocol | UDP 12414 for discovery, TCP 12416 for control (21-byte frames). See `docs/PROTOCOL.md`. |
 
@@ -17,7 +17,7 @@ from Windows. The PC talks directly to the AC over your home network.
    - from the GitHub repo → **Releases** → latest → download `HomeEasyLocal.exe`, or
    - copy `publish\HomeEasyLocal.exe` from this PC (USB stick or network share).
 2. Put it in a permanent folder, e.g. `C:\Apps\HomeEasyLocal\HomeEasyLocal.exe`.
-3. Connect that PC to the same home network as the AC (Wi-Fi `KODI`, `KODI 5G` or a cable to the same router).
+3. Connect that PC to the same home network as the AC.
 4. Double-click the exe.
    - If Windows SmartScreen says *"Windows protected your PC"*: click **More info → Run anyway**.
      This happens because the exe is unsigned.
@@ -77,7 +77,7 @@ as `HomeEasyLocal.ipa`. You sign and install it from this Windows PC with **your
 6. Open **AC Control** and tap **Allow** when asked for *Local Network* access. Without it the app cannot reach the AC.
    You can change it later in **Settings → Privacy & Security → Local Network**.
 7. Enter the AC IP (default `192.168.0.5`) and tap **Connect**, or tap **Scan network**.
-   The iPhone must be on the home Wi-Fi (KODI or KODI 5G).
+   The iPhone must be on the home Wi-Fi.
 
 ### Limits of a free Apple ID
 - The app stops opening after **7 days**. Re-sign it: connect the iPhone and run Sideloadly again with the same IPA;
