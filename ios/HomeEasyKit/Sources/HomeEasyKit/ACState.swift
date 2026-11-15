@@ -149,7 +149,7 @@ public struct ACState: Equatable {
 
 public extension Array where Element == UInt8 {
     init?(hex: String) {
-        let chars: [Character] = Array(hex)
+        let chars = Swift.Array<Character>(hex)
         guard chars.count % 2 == 0 else { return nil }
         var out: [UInt8] = []
         for i in stride(from: 0, to: chars.count, by: 2) {
