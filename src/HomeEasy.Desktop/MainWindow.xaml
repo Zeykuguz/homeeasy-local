@@ -47,8 +47,12 @@
                         <TextBlock Text="Indoor" Foreground="#777"/>
                         <TextBlock x:Name="IndoorText" Text="--.- °C" FontSize="34" FontWeight="SemiBold"/>
                     </StackPanel>
-                    <ToggleButton x:Name="PowerButton" Grid.Column="1" Width="90" Height="56" FontSize="18" FontWeight="Bold"
-                                  Content="OFF" Click="Power_Click"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <ToggleButton x:Name="DisplayBox" Width="100" Height="56" FontSize="14" Margin="0,0,8,0"
+                                      Content="Light" Click="Light_Click" ToolTip="Turn the AC display light on or off"/>
+                        <ToggleButton x:Name="PowerButton" Width="90" Height="56" FontSize="18" FontWeight="Bold"
+                                      Content="OFF" Click="Power_Click"/>
+                    </StackPanel>
                 </Grid>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,14,0,6">
@@ -81,7 +85,6 @@
                 <WrapPanel Margin="0,8,0,0">
                     <CheckBox x:Name="EcoBox" Content="Eco" Click="Flag_Click"/>
                     <CheckBox x:Name="SleepBox" Content="Sleep" Click="Flag_Click"/>
-                    <CheckBox x:Name="DisplayBox" Content="Display" Click="Flag_Click"/>
                     <CheckBox x:Name="HealthBox" Content="Health" Click="Flag_Click"/>
                     <CheckBox x:Name="AuxBox" Content="Aux heat / Dry" Click="Flag_Click"/>
                 </WrapPanel>

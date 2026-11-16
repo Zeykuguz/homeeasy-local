@@ -53,7 +53,7 @@ public partial class MainWindow : Window
         _tray.MouseClick += (_, e) => { if (e.Button == Forms.MouseButtons.Left) ShowFromTray(); };
         var menu = new Forms.ContextMenuStrip();
         menu.Items.Add("Open", null, (_, _) => ShowFromTray());
-        menu.Items.Add("Power ON", null, async (_, _) => await ChangeAsync(s => s.Power = true));
+        menu.Items.Add("Power ON", null, async (_, _) => await ChangeAsync(s => { s.Power = true; s.ClearTimers(); }));
         menu.Items.Add("Power OFF", null, async (_, _) => await ChangeAsync(s => s.Power = false));
         menu.Items.Add(new Forms.ToolStripSeparator());
         menu.Items.Add("Exit", null, (_, _) => { _exiting = true; Close(); });
@@ -158,10 +158,13 @@ public partial class MainWindow : Window
         if (_client == null) return false;
         try
         {
-            ShowState(await _client.GetStatusAsync());
+            var previous = _state;
+            var s = await _client.GetStatusAsync();
+            ShowState(s);
             if (_connectionError || StatusText.Text.StartsWith("Connecting"))
                 SetStatus($"Connected to {HostBox.Text}");
             _connectionError = false;
+            await ClearLeftoverTimerAsync(previous, s);
             return true;
         }
         catch (Exception ex)
@@ -171,6 +174,24 @@ public partial class MainWindow : Window
             SetStatus($"Cannot reach AC at {HostBox.Text}: {ex.Message}", error: true);
             return false;
         }
+    }
+
+    private bool AppTimerActive =>
+        _settings.TimerEndsUtc is { } end && DateTime.UtcNow < end.AddMinutes(2);
+
+    private void SaveAppTimer(int? minutes)
+    {
+        _settings.TimerEndsUtc = minutes is > 0 ? DateTime.UtcNow.AddMinutes(minutes.Value) : null;
+        _settings.Save();
+    }
+
+    private async Task ClearLeftoverTimerAsync(AcState? previous, AcState s)
+    {
+        if (!s.Power && _settings.TimerEndsUtc != null) SaveAppTimer(null);
+        if (!AcState.ShouldClearTimer(previous, s, AppTimerActive)) return;
+        SaveAppTimer(null);
+        await ChangeAsync(x => x.ClearTimers());
+        SetStatus($"Cleared a leftover timer at {DateTime.Now:T}");
     }
 
     private async Task ChangeAsync(Action<AcState> change)
@@ -212,6 +233,8 @@ public partial class MainWindow : Window
             EcoBox.IsChecked = s.Eco;
             SleepBox.IsChecked = s.Sleep;
             DisplayBox.IsChecked = s.Display;
+            DisplayBox.Content = s.Display ? "💡 Light ON" : "Light OFF";
+            DisplayBox.Background = s.Display ? Brushes.LightYellow : Brushes.LightGray;
             HealthBox.IsChecked = s.Health;
             AuxBox.IsChecked = s.Aux;
             if (s.OffTimerEnabled && s.OffTimerMinutes > 0 && s.Power)
@@ -262,13 +285,27 @@ public partial class MainWindow : Window
             return;
         }
         await ChangeAsync(s => s.SetOffTimer(minutes));
+        if (_state is { OffTimerEnabled: true }) SaveAppTimer(minutes);
     }
 
-    private async void TimerCancel_Click(object sender, RoutedEventArgs e) =>
+    private async void TimerCancel_Click(object sender, RoutedEventArgs e)
+    {
+        SaveAppTimer(null);
         await ChangeAsync(s => s.SetOffTimer(null));
+    }
 
     private async void Power_Click(object sender, RoutedEventArgs e) =>
-        await ChangeAsync(s => s.Power = !s.Power);
+        await ChangeAsync(TogglePower);
+
+    /// <summary>Turning on from the app always starts without a timer.</summary>
+    private void TogglePower(AcState s)
+    {
+        s.Power = !s.Power;
+        if (s.Power) s.ClearTimers();
+    }
+
+    private async void Light_Click(object sender, RoutedEventArgs e) =>
+        await ChangeAsync(s => s.Display = !s.Display);
 
     private async void TempUp_Click(object sender, RoutedEventArgs e) =>
         await ChangeAsync(s => s.SetpointCelsius = Math.Min(30, s.SetpointCelsius + 1));
@@ -302,7 +339,6 @@ public partial class MainWindow : Window
         Action<AcState> change =
             sender == EcoBox ? s => s.Eco = on :
             sender == SleepBox ? s => s.Sleep = on :
-            sender == DisplayBox ? s => s.Display = on :
             sender == HealthBox ? s => s.Health = on :
             s => s.Aux = on;
         await ChangeAsync(change);

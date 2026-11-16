@@ -111,6 +111,35 @@ public class AcStateTests
         Assert.Equal((byte)2, d.Vendor);
         Assert.Equal((byte)2, d.Type);
     }
+
+    [Fact]
+    public void Leftover_timer_is_cleared_but_app_timer_is_kept()
+    {
+        // Real frame: AC on, heat, 2-minute off timer running.
+        var withTimer = new AcState(Convert.FromHexString("AAAA12010A0A000C0501F48000023C19050000005D"));
+        var off = new AcState(withTimer.ToCommand()) { Power = false };
+        var noTimer = new AcState(Convert.FromHexString(Heat21));
+
+        Assert.True(AcState.ShouldClearTimer(null, withTimer, appTimerActive: false));    // app start
+        Assert.False(AcState.ShouldClearTimer(null, withTimer, appTimerActive: true));    // set by this app
+        Assert.False(AcState.ShouldClearTimer(noTimer, withTimer, appTimerActive: false)); // set while running
+        Assert.True(AcState.ShouldClearTimer(off, withTimer, appTimerActive: false));      // just powered on
+        Assert.True(AcState.ShouldClearTimer(withTimer, off, appTimerActive: true));       // AC is off
+        Assert.False(AcState.ShouldClearTimer(null, noTimer, appTimerActive: false));
+
+        // Real frames: right after the off timer fired (off, timer still enabled, 0 min), and on with only the
+        // read-only timer flag set.
+        var fired = new AcState(Convert.FromHexString("AAAA12000A0A00040501F48000003C150000000049"));
+        var flagOnly = new AcState(Convert.FromHexString("AAAA12000A0A000C0501F40000003C1500000000D1"));
+        Assert.True(AcState.ShouldClearTimer(null, fired, appTimerActive: false));
+        Assert.False(AcState.ShouldClearTimer(null, flagOnly, appTimerActive: false));
+        fired.ClearTimers();
+        Assert.Equal("AAAA12010A0A00040501D40000003C1500000000AA", Convert.ToHexString(fired.ToCommand()));
+
+        withTimer.ClearTimers();
+        Assert.False(withTimer.HasTimer);
+        Assert.True(withTimer.Power);
+    }
 }
 
 public class AcClientTests

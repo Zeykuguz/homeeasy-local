@@ -82,6 +82,30 @@ public sealed class AcState
     public bool Eco { get => Get(6, 7) == 1; set => Set(6, 7, value); }
     public bool TimerFlag { get => Get(6, 2) == 1; set => Set(6, 2, value); }
     public bool OffTimerEnabled { get => Get(7, 0) == 1; set => Set(7, 0, value); }
+    public bool OnTimerEnabled { get => Get(7, 4) == 1; set => Set(7, 4, value); }
+
+    /// <summary>An off/on timer is armed. <see cref="TimerFlag"/> is ignored: the AC reports it but ignores writes.</summary>
+    public bool HasTimer => OffTimerEnabled || OnTimerEnabled || OffTimerMinutes > 0;
+
+    public void ClearTimers()
+    {
+        SetOffTimer(null);
+        OnTimerEnabled = false;
+    }
+
+    /// <summary>
+    /// True when a timer is left over and should be cancelled. After the off timer fires the AC stays off with
+    /// the timer still enabled (0 min), and powering on with that state re-arms it. Checked on the first status
+    /// after app start (<paramref name="previous"/> null), whenever the AC is off, and when it turns on.
+    /// A timer started by this app (<paramref name="appTimerActive"/>) is kept.
+    /// </summary>
+    public static bool ShouldClearTimer(AcState? previous, AcState current, bool appTimerActive)
+    {
+        if (!current.HasTimer) return false;
+        if (!current.Power) return true;
+        if (appTimerActive) return false;
+        return previous == null || !previous.Power;
+    }
 
     /// <summary>Minutes until the AC switches itself off; the AC counts this down once enabled.</summary>
     public int OffTimerMinutes

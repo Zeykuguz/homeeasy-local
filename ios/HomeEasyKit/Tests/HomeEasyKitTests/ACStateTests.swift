@@ -46,6 +46,31 @@ final class ACStateTests: XCTestCase {
         XCTAssertEqual(back.setpoint, 21)
     }
 
+    func testLeftoverTimerIsClearedButAppTimerIsKept() {
+        var withTimer = ACState(frame: [UInt8](hex: "AAAA12010A0A000C0501F48000023C19050000005D")!)!
+        var off = withTimer
+        off.power = false
+        let noTimer = ACState(frame: heat21)!
+
+        XCTAssertTrue(ACState.shouldClearTimer(previous: nil, current: withTimer, appTimerActive: false))
+        XCTAssertFalse(ACState.shouldClearTimer(previous: nil, current: withTimer, appTimerActive: true))
+        XCTAssertFalse(ACState.shouldClearTimer(previous: noTimer, current: withTimer, appTimerActive: false))
+        XCTAssertTrue(ACState.shouldClearTimer(previous: off, current: withTimer, appTimerActive: false))
+        XCTAssertTrue(ACState.shouldClearTimer(previous: withTimer, current: off, appTimerActive: true))
+        XCTAssertFalse(ACState.shouldClearTimer(previous: nil, current: noTimer, appTimerActive: false))
+
+        var fired = ACState(frame: [UInt8](hex: "AAAA12000A0A00040501F48000003C150000000049")!)!
+        let flagOnly = ACState(frame: [UInt8](hex: "AAAA12000A0A000C0501F40000003C1500000000D1")!)!
+        XCTAssertTrue(ACState.shouldClearTimer(previous: nil, current: fired, appTimerActive: false))
+        XCTAssertFalse(ACState.shouldClearTimer(previous: nil, current: flagOnly, appTimerActive: false))
+        fired.clearTimers()
+        XCTAssertEqual(fired.command.hex, "AAAA12010A0A00040501D40000003C1500000000AA")
+
+        withTimer.clearTimers()
+        XCTAssertFalse(withTimer.hasTimer)
+        XCTAssertTrue(withTimer.power)
+    }
+
     func testFrameExtractionSkipsGarbage() {
         let buffer: [UInt8] = [0x00, 0x13] + heat21 + [0x01]
         XCTAssertEqual(ACClient.extractFrame(buffer), heat21)

@@ -106,6 +106,26 @@ public struct ACState: Equatable {
     public var eco: Bool { get { bits(6, 7) == 1 } set { setFlag(6, 7, newValue) } }
     public var timerFlag: Bool { get { bits(6, 2) == 1 } set { setFlag(6, 2, newValue) } }
     public var offTimerEnabled: Bool { get { bits(7, 0) == 1 } set { setFlag(7, 0, newValue) } }
+    public var onTimerEnabled: Bool { get { bits(7, 4) == 1 } set { setFlag(7, 4, newValue) } }
+
+    /// An off/on timer is armed. `timerFlag` is ignored: the AC reports it but ignores writes.
+    public var hasTimer: Bool { offTimerEnabled || onTimerEnabled || offTimerMinutes > 0 }
+
+    public mutating func clearTimers() {
+        setOffTimer(minutes: nil)
+        onTimerEnabled = false
+    }
+
+    /// True when a timer is left over and should be cancelled. After the off timer fires the AC stays off with
+    /// the timer still enabled (0 min), and powering on with that state re-arms it. Checked on the first status
+    /// after app start (`previous` nil), whenever the AC is off, and when it turns on.
+    /// A timer started by this app (`appTimerActive`) is kept.
+    public static func shouldClearTimer(previous: ACState?, current: ACState, appTimerActive: Bool) -> Bool {
+        guard current.hasTimer else { return false }
+        if !current.power { return true }
+        if appTimerActive { return false }
+        return previous.map { !$0.power } ?? true
+    }
 
     /// Minutes until the AC switches itself off; the AC counts this down once enabled. Clamped to 0...1440.
     public var offTimerMinutes: Int {

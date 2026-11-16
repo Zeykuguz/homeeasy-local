@@ -38,23 +38,70 @@ final class ACViewModel: ObservableObject {
     func refresh(quiet: Bool = false) async {
         if busy { return }
         do {
-            state = try await client.status()
+            let previous = state
+            let current = try await client.status()
+            state = current
             message = ""
+            await clearLeftoverTimer(previous: previous, current: current)
         } catch {
             if !quiet || state == nil { message = error.localizedDescription }
         }
     }
 
-    func change(_ apply: @escaping (inout ACState) -> Void) {
+    private var appTimerEndsAt: Date? {
+        get { UserDefaults.standard.object(forKey: "timerEndsAt") as? Date }
+        set { UserDefaults.standard.set(newValue, forKey: "timerEndsAt") }
+    }
+
+    private var appTimerActive: Bool {
+        guard let end = appTimerEndsAt else { return false }
+        return Date() < end.addingTimeInterval(120)
+    }
+
+    private func clearLeftoverTimer(previous: ACState?, current: ACState) async {
+        if !current.power { appTimerEndsAt = nil }
+        guard ACState.shouldClearTimer(previous: previous, current: current, appTimerActive: appTimerActive) else { return }
+        appTimerEndsAt = nil
+        await perform { $0.clearTimers() }
+    }
+
+    func startTimer(minutes: Int) {
         Task {
-            busy = true
-            defer { busy = false }
-            do {
-                state = try await client.update(apply)
-                message = ""
-            } catch {
-                message = error.localizedDescription
-            }
+            await perform { $0.setOffTimer(minutes: minutes) }
+            if state?.offTimerEnabled == true { appTimerEndsAt = Date().addingTimeInterval(Double(minutes) * 60) }
+        }
+    }
+
+    func cancelTimer() {
+        appTimerEndsAt = nil
+        change { $0.setOffTimer(minutes: nil) }
+    }
+
+    /// Turning on from the app always starts without a timer.
+    var powerBinding: Binding<Bool> {
+        Binding(
+            get: { self.state?.power ?? false },
+            set: { on in
+                self.state?.power = on
+                self.change { s in
+                    s.power = on
+                    if on { s.clearTimers() }
+                }
+            })
+    }
+
+    func change(_ apply: @escaping (inout ACState) -> Void) {
+        Task { await perform(apply) }
+    }
+
+    private func perform(_ apply: @escaping (inout ACState) -> Void) async {
+        busy = true
+        defer { busy = false }
+        do {
+            state = try await client.update(apply)
+            message = ""
+        } catch {
+            message = error.localizedDescription
         }
     }
 
@@ -115,8 +162,11 @@ struct ContentView: View {
                             Spacer()
                             Text(String(format: "%.1f °C", s.indoor)).font(.title2.monospacedDigit())
                         }
-                        Toggle("Power", isOn: vm.binding(\.power, default: false))
+                        Toggle("Power", isOn: vm.powerBinding)
                             .font(.headline)
+                        Toggle(isOn: vm.binding(\.display, default: true)) {
+                            Label("Light (AC display)", systemImage: s.display ? "lightbulb.fill" : "lightbulb")
+                        }
                         Stepper(value: vm.binding(\.setpoint, default: 24), in: 16...30) {
                             HStack {
                                 Text("Target")
@@ -147,7 +197,6 @@ struct ContentView: View {
                         Toggle("Sleep", isOn: vm.binding(\.sleep, default: false))
                         Toggle("Health", isOn: vm.binding(\.health, default: false))
                         Toggle("Aux heat / drying", isOn: vm.binding(\.aux, default: false))
-                        Toggle("Display light", isOn: vm.binding(\.display, default: true))
                     }
 
                     Section("Off timer") {
@@ -157,15 +206,12 @@ struct ContentView: View {
                                 Spacer()
                                 Text(Self.format(s.offTimerMinutes)).monospacedDigit()
                             }
-                            Button("Cancel timer", role: .destructive) { vm.change { $0.setOffTimer(minutes: nil) } }
+                            Button("Cancel timer", role: .destructive) { vm.cancelTimer() }
                         } else {
                             Picker("Turn off after", selection: $vm.timerMinutes) {
                                 ForEach(presets, id: \.self) { Text(Self.format($0)).tag($0) }
                             }
-                            Button("Start timer") {
-                                let m = vm.timerMinutes
-                                vm.change { $0.setOffTimer(minutes: m) }
-                            }
+                            Button("Start timer") { vm.startTimer(minutes: vm.timerMinutes) }
                             .disabled(!s.power)
                         }
                     }
