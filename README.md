@@ -48,7 +48,7 @@ cd homeeasy-local
 - **Leftover timers are cleared automatically.** After the off timer fires, the AC keeps the timer armed (0 min).
   Turning the AC on would re-arm it, so the app (PC and iPhone) cancels it at app start, after the AC turns off, and when the AC turns on.
   Timers started from the same app keep running. Turning on from the app always starts without a timer.
-- **Light ON/OFF** (next to Power) switches the AC display light. The AC accepts it only while it is running.
+- **Light ON/OFF** (next to Power) switches the AC display light.
 - **Minimize** = normal taskbar minimize.
 - **Close (X)** = keeps running in the tray (blue **AC** icon; it may be hidden under `^`).
   - Click the icon, or just start the app again, to reopen the window.

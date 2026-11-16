@@ -26,7 +26,7 @@
 | setpoint | 4.3 (5) | °C − 16 |
 | horizontal swing | 5.0 (4) | 0 stop, 1 swing, 2–6 positions, 12 left-right, 13 wide |
 | vertical swing | 5.4 (4) | 0 stop, 1 swing, 2–6 positions |
-| display / health / timer / aux(dry) / sleep / eco | 6.0 / 6.1 / 6.2 / 6.3 / 6.6 / 6.7 | bool; display = light, ignored while the AC is off. 6.2 (`timingMode`) is status only: the AC ignores writes |
+| display / health / timer / aux(dry) / sleep / eco | 6.0 / 6.1 / 6.2 / 6.3 / 6.6 / 6.7 | bool; display = light. 6.2 (`timingMode`) is status only: the AC ignores writes |
 | off-timer enable / minutes hi | 7.0 / 7.1 (3) | minutes = hi<<8 \| byte 9, **remaining**; the AC counts down every minute and powers off at 0 (verified) |
 | on-timer enable / minutes hi | 7.4 / 7.5 (3) | minutes = hi<<8 \| byte 8 (from the original app) |
 | indoor temp | byte 11 + byte 12 / 10 | °C |
