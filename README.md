@@ -45,6 +45,10 @@ cd homeeasy-local
 - **Off timer:** choose a preset (15 min to 12 h), or type minutes (e.g. `90`) or hours (e.g. `1.5 h`). Then click **Start**.
   The timer runs **inside the AC**, so the PC can be shut down afterwards. **Cancel** removes it.
   The app shows the remaining time.
+- **Leftover timers are cleared automatically.** After the off timer fires, the AC keeps the timer armed (0 min).
+  Turning the AC on would re-arm it, so the app (PC and iPhone) cancels it at app start, after the AC turns off, and when the AC turns on.
+  Timers started from the same app keep running. Turning on from the app always starts without a timer.
+- **Light ON/OFF** (next to Power) switches the AC display light. The AC accepts it only while it is running.
 - **Minimize** = normal taskbar minimize.
 - **Close (X)** = keeps running in the tray (blue **AC** icon; it may be hidden under `^`).
   - Click the icon, or just start the app again, to reopen the window.
@@ -53,14 +57,14 @@ cd homeeasy-local
 
 ## iPhone app (local only, no App Store)
 Source: `ios/` (SwiftUI, iOS 15+). GitHub Actions (`.github/workflows/ios.yml`) builds an **unsigned** IPA on a Mac runner.
-It is attached to the release [`ios-v1.0.0`](https://github.com/Zeykuguz/homeeasy-local/releases/tag/ios-v1.0.0)
+It is attached to the release [`ios-v1.1.0`](https://github.com/Zeykuguz/homeeasy-local/releases/tag/ios-v1.1.0)
 as `HomeEasyLocal.ipa`. You sign and install it from this Windows PC with **your own free Apple ID**, using **Sideloadly**.
 
 ### One-time preparation (Windows PC)
 1. Install **iTunes** and **iCloud** from apple.com, the "Windows without Microsoft Store" download links.
    The Microsoft Store versions do not work with Sideloadly.
 2. Install **Sideloadly** from https://sideloadly.io.
-3. Download `HomeEasyLocal.ipa` from the release (or `gh release download ios-v1.0.0 -R Zeykuguz/homeeasy-local`).
+3. Download `HomeEasyLocal.ipa` from the release (or `gh release download ios-v1.1.0 -R Zeykuguz/homeeasy-local`).
 
 ### Install
 1. Connect the iPhone by USB cable, unlock it and tap **Trust this computer**.

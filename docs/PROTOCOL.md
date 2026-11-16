@@ -26,9 +26,13 @@
 | setpoint | 4.3 (5) | °C − 16 |
 | horizontal swing | 5.0 (4) | 0 stop, 1 swing, 2–6 positions, 12 left-right, 13 wide |
 | vertical swing | 5.4 (4) | 0 stop, 1 swing, 2–6 positions |
-| display / health / timer / aux(dry) / sleep / eco | 6.0 / 6.1 / 6.2 / 6.3 / 6.6 / 6.7 | bool |
-| off-timer enable / minutes hi | 7.0 / 7.1 (3) | minutes **remaining**; the AC counts down every minute and powers off at 0 (verified) |
-| on-timer enable / minutes hi | 7.4 / 7.5 (3) | minutes = hi<<8 \| byte 9 |
+| display / health / timer / aux(dry) / sleep / eco | 6.0 / 6.1 / 6.2 / 6.3 / 6.6 / 6.7 | bool; display = light, ignored while the AC is off. 6.2 (`timingMode`) is status only: the AC ignores writes |
+| off-timer enable / minutes hi | 7.0 / 7.1 (3) | minutes = hi<<8 \| byte 9, **remaining**; the AC counts down every minute and powers off at 0 (verified) |
+| on-timer enable / minutes hi | 7.4 / 7.5 (3) | minutes = hi<<8 \| byte 8 (from the original app) |
 | indoor temp | byte 11 + byte 12 / 10 | °C |
+
+**Leftover timer (verified 2026-11-16):** after the off timer fires, the AC reports power off, off-timer enable = 1, minutes = 0.
+A power-on command built from that state re-arms the timer. Send off-timer enable = 0 (accepted even while off),
+or clear it in the power-on command. The original app only ever writes payload bytes 7–9 for timers.
 
 Credit: field layout first published by ki0ki0/homeeasylib (GPLv3); this repo is an independent implementation.
